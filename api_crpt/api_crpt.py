@@ -1,9 +1,12 @@
 # https://github.com/li0ard/nechestniy_znak/tree/main
-import requests, urllib
+import requests
 from urllib.parse import quote_plus
 import json
 import os
 
+'''
+Скрипт для проверки валидности кодов - находятся ли они в обороте или нет.
+'''
 
 class Lib:
     def __init__(self):
@@ -54,5 +57,5 @@ def getInfoFromDataMatrix(content, type):
 if __name__ == "__main__":
     with open('api_crpt' + os.sep + 'datamatrix.txt') as f:
         for code in f.read().splitlines():
-            print(code)
-            print(getInfoFromDataMatrix(code, "datamatrix"))
+            list_out = getInfoFromDataMatrix(code, "datamatrix")
+            print(str(list_out[1]) + ' ' + str(list_out[0]))
