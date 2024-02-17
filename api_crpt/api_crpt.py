@@ -1,6 +1,8 @@
+# https://github.com/li0ard/nechestniy_znak/tree/main
 import requests, urllib
 from urllib.parse import quote_plus
 import json
+import os
 
 
 class Lib:
@@ -20,33 +22,29 @@ class Lib:
         return self._get(qr, "qr")
 
 
-def getInfoFromDataMatrix(self, content, type):
-    '''
-    https://stackoverflow.com/questions/37374165/parsing-json-using-try-and-except
-    '''
-    content = quote_plus(content)
+def getInfoFromDataMatrix(content, type):
+    content = quote_plus(content)  # для кодирования символов при передаче AP
     link = f"https://mobile.api.crpt.ru/mobile/check?code={content}&codeType={type}"
     requests_json = requests.get(link).json()
     input = json.dumps(requests_json)
     jsonobject = json.loads(input)
     info_msg = []
+
     try:
         if str(jsonobject['codeFounded']) == 'True':
-            if jsonobject['tiresData'] != {}:
-                if jsonobject['tiresData']['cisInfo'] != {}:
-                    if str(jsonobject['tiresData']['cisInfo']['withdrawReason']) == 'OWN_USE':
-                        info_msg.append('Не для продажи ❌')
-                        info_msg.append('Код выведен из оборота')
-                        info_msg.append(False)
-
-                else:
-                    info_msg.append('Товар проверен ✅')
-                    info_msg.append(str(jsonobject['code']))
-                    info_msg.append(True)
-                info_msg.append(str(jsonobject['productName']))
+            if str(jsonobject['tiresData']['status']) == 'INTRODUCED':
+                info_msg.append('В обороте ✅')
+                info_msg.append(str(jsonobject['code']))
+            elif str(jsonobject['tiresData']['status']) == 'RETIRED':
+                info_msg.append('Выведен из оборота ❌')
+                info_msg.append(str(jsonobject['code']))
+            else:
+                info_msg.append('Неизвестный статус кода ⚠️')
+                info_msg.append(str(jsonobject['tiresData']['status']))
         else:
             info_msg.append('Код не найден ❌')
             info_msg.append(jsonobject['code'])
+
     except:
         info_msg.append('Ошибка получения данных')
 
@@ -54,20 +52,7 @@ def getInfoFromDataMatrix(self, content, type):
 
 
 if __name__ == "__main__":
-    lib = Lib()
-    with open('C:/Users/aruytehno/PycharmProjects/tires/test/datamatrix.txt') as f:
-        lines = f.read().splitlines()
-        print(lines)
-        for code in lines:
+    with open('api_crpt' + os.sep + 'datamatrix.txt') as f:
+        for code in f.read().splitlines():
             print(code)
             print(getInfoFromDataMatrix(code, "datamatrix"))
-
-    # # code_info = json.getInfoFromDataMatrix("0104603720196471215wWbdE6v,f-sz", "datamatrix")
-    # # code_info = json.getInfoFromDataMatrix("0104603720196457215bFNT4KLpJT3q", "datamatrix")
-    # # code_info = json.getInfoFromDataMatrix("0104603720196471215b>CWR..DEE&8", "datamatrix")
-    # code_info = json.getInfoFromDataMatrix("0104603720196396215TStuMCtP>K?N", "datamatrix")
-    # print('code_info_in_test: ' + str(code_info))
-
-    print(lib.infoFromEAN13(46494139))
-    print(lib.infoFromDataMatrix("00000046209849Uon<TYfACyAJPHJ"))
-    print(lib.infoFromQr("chek.markirovka.nalog.ru/kc/?kiz=RU-430302-AAA4050108"))
