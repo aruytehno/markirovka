@@ -160,4 +160,4 @@ cython_debug/
 .idea/
 
 
-api_crpt/datamatrix.txt
+api_crpt
