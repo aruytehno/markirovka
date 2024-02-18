@@ -24,7 +24,15 @@ class Lib:
     def infoFromQr(self, qr):
         return self._get(qr, "qr")
 
-
+'''
+Статус товара/КИ:
+EMITTED – Эмитирован. Выпущен;
+APPLIED – Эмитирован. Получен;
+INTRODUCED – В обороте;
+WRITTEN_OFF – КИ списан;
+RETIRED – Выбыл;
+DISAGGREGATION – Расформирован (только для упаковок)
+'''
 def getInfoFromDataMatrix(content, type):
     content = quote_plus(content)  # для кодирования символов при передаче AP
     link = f"https://mobile.api.crpt.ru/mobile/check?code={content}&codeType={type}"
@@ -34,19 +42,25 @@ def getInfoFromDataMatrix(content, type):
     info_msg = []
 
     try:
+        info_msg.append(jsonobject['code'])
         if str(jsonobject['codeFounded']) == 'True':
             if str(jsonobject['tiresData']['status']) == 'INTRODUCED':
                 info_msg.append('В обороте ✅')
-                info_msg.append(str(jsonobject['code']))
             elif str(jsonobject['tiresData']['status']) == 'RETIRED':
-                info_msg.append('Выведен из оборота ❌')
-                info_msg.append(str(jsonobject['code']))
+                info_msg.append('Выбыл из оборота ❌')
+            elif str(jsonobject['tiresData']['status']) == 'EMITTED':
+                info_msg.append('Эмитирован, выпущен ✔️')
+            elif str(jsonobject['tiresData']['status']) == 'APPLIED':
+                info_msg.append('Эмитирован, получен 🔗')
+            elif str(jsonobject['tiresData']['status']) == 'WRITTEN_OFF':
+                info_msg.append('КИ списан 🟥')
+            elif str(jsonobject['tiresData']['status']) == 'DISAGGREGATION':
+                info_msg.append('Расформирован (только для упаковок) 📦🟥')
             else:
                 info_msg.append('Неизвестный статус кода ⚠️')
-                info_msg.append(str(jsonobject['tiresData']['status']))
+                info_msg.append('[' + str(jsonobject['tiresData']['status']) + ']')
         else:
-            info_msg.append('Код не найден ❌')
-            info_msg.append(jsonobject['code'])
+            info_msg.append('Код не найден ❗')
 
     except:
         info_msg.append('Ошибка получения данных')
@@ -57,5 +71,7 @@ def getInfoFromDataMatrix(content, type):
 if __name__ == "__main__":
     with open('api_crpt' + os.sep + 'datamatrix.txt') as f:
         for code in f.read().splitlines():
-            list_out = getInfoFromDataMatrix(code, "datamatrix")
-            print(str(list_out[1]) + ' ' + str(list_out[0]))
+            i_out = ''
+            for i in getInfoFromDataMatrix(code, "datamatrix"):
+                i_out += i + ' '
+            print(i_out)
