@@ -60,11 +60,12 @@ def getInfoFromDataMatrix(content, type):
             else:
                 info_msg.append('Неизвестный статус кода ⚠️')
                 info_msg.append('[' + str(jsonobject['tiresData']['status']) + ']')
+            info_msg.append('[' + str(jsonobject['productName']) + ']')
         else:
             info_msg.append('Код не найден ❗')
 
     except:
-        info_msg.append('Ошибка получения данных')
+        info_msg.append('Ошибка получения данных 🛑')
 
     return info_msg
 
