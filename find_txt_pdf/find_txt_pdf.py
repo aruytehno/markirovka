@@ -105,8 +105,8 @@ def folder_input_files(name_folder):
 
 
 if __name__ == "__main__":
-    list_in_files = folder_input_files('input')
-    print(list_in_files) # TODO: fix to delete .DS_Store
+    list_files = folder_input_files('input')
+    print(list_files) # TODO: fix to delete .DS_Store
     # print(os.listdir()) # Просмотр списка файлов в папке
     codes = find_lines('find_lines.txt')
-    find_coordinates(codes, list_in_files, 'input', 'out')
+    find_coordinates(codes, list_files, 'input', 'out')
