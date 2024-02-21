@@ -1,6 +1,7 @@
 '''
 Скрипт для замены двойных линий на одинарные в выгруженных файлах для удобства нарезки после печати.
 '''
+import os
 
 from PyPDF2 import PdfReader, PdfWriter
 
@@ -20,4 +21,11 @@ def put_watermark(input_pdf, output_pdf, watermark):
 
 
 if __name__ == "__main__":
-    put_watermark('input.pdf', 'output.pdf', 'watermark.pdf')
+    list_files = os.listdir()
+    print(list_files)
+    list_files.remove('fix_lines.py')
+    list_files.remove('watermark.pdf')
+    print(list_files)
+    for file in list_files:
+        print(file)
+        put_watermark(file, file.replace('.pdf', '_fix_lines.pdf'), 'watermark.pdf')
