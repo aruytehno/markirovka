@@ -15,3 +15,9 @@ find_txt_pdf.py
 fix_lines.py
 Скрипт предназначен для замены двойных линий на одинарные в выгруженных файлах для удобства нарезки после печати.
 ```
+
+[Как сделать из Python-скрипта исполняемый файл](https://habr.com/ru/companies/slurm/articles/746622/)
+```shell
+python -m pip install pyinstaller
+python -m PyInstaller
+```
