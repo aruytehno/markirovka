@@ -2,7 +2,6 @@
 Скрипт для замены двойных линий на одинарные в выгруженных файлах для удобства нарезки после печати.
 '''
 import os
-import time
 
 from PyPDF2 import PdfReader, PdfWriter
 
@@ -37,4 +36,3 @@ if __name__ == "__main__":
         print('Обрабатывается: ' + file)
         len_pdf = put_watermark(file, file.replace('.pdf', '_fix_lines.pdf'), 'watermark.pdf')
         print('Обрабатано: ' + str(len_pdf[0]) + ' из ' + str(len_pdf[1]) + ' страниц.\n')
-    time.sleep(5)
