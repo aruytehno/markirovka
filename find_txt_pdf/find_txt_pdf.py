@@ -1,4 +1,6 @@
+import glob
 import os
+import logging
 
 from pdfminer.layout import LAParams, LTTextBox
 from pdfminer.pdfpage import PDFPage
@@ -49,17 +51,11 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_lines(find_lines):
-    with open(find_lines) as file:
-        return [line.rstrip()[24:] for line in file]
-
-
-def find_coordinates(lines_for_find, list_input_files, input_directory, out_directory):
+def find_coordinates(lines_for_find, list_input_files):
     file_pdf_writer = PdfWriter()
     for file_pdf in list_input_files:
-        file_pdf_path = input_directory + os.sep + file_pdf
-        fp = open(file_pdf_path, 'rb')
-        file_pdf_reader = PdfReader(file_pdf_path)
+        fp = open(file_pdf, 'rb')
+        file_pdf_reader = PdfReader(file_pdf)
 
 
         # This will give you the count of pages
@@ -77,7 +73,7 @@ def find_coordinates(lines_for_find, list_input_files, input_directory, out_dire
 
         for page in pages:
             index_page += 1
-            print('Processing next page ' + str(index_page) + ' from ' + str(count_pages))
+            print('Обработано страниц ' + str(index_page) + ' из ' + str(count_pages))
             interpreter.process_page(page)
             layout = device.get_result()
             for lobj in layout:
@@ -87,26 +83,23 @@ def find_coordinates(lines_for_find, list_input_files, input_directory, out_dire
                     for substring in lines_for_find:
                         try:
                             fullstring.index(substring)
+                            print('Найдено совпадение: ' + substring)
                         except ValueError:
-                            print('Нет совпадений')
+                            logging.info('Нет совпадений')
                         else:
                             index_count += 1
-                            print('At %r is text: %s' % ((x, y), fullstring))
+                            # print('At %r is text: %s' % ((x, y), fullstring))
                             crop_page = extract_image(x, y, index_page, file_pdf_reader)
                             file_pdf_writer.add_page(crop_page)
 
-    with open(out_directory + os.sep + str(len(lines_for_find)) + '.pdf', "wb") as fp:
+    with open(str(len(lines_for_find)) + '.pdf', "wb") as fp:
         file_pdf_writer.write(fp)
 
 
-def folder_input_files(name_folder):
-    path = os.path.abspath(name_folder)
-    return [f for f in listdir(path) if isfile(join(path, f))]
+def find_lines(find_lines):
+    with open(find_lines) as file:
+        return [line.rstrip()[24:] for line in file]
 
 
 if __name__ == "__main__":
-    list_files = folder_input_files('input')
-    print(list_files) # TODO: fix to delete .DS_Store
-    # print(os.listdir()) # Просмотр списка файлов в папке
-    codes = find_lines('find_lines.txt')
-    find_coordinates(codes, list_files, 'input', 'out')
+    find_coordinates(find_lines('find_lines.txt'), glob.glob("*.pdf"))
