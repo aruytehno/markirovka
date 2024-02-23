@@ -3,6 +3,8 @@
 '''
 import glob
 import logging
+import os
+from pathlib import Path
 
 from pdfminer.layout import LAParams, LTTextBox
 from pdfminer.pdfpage import PDFPage
@@ -29,7 +31,8 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_coordinates(list_to_search, list_input_files):
+def find_coordinates(list_to_search, list_input_files, target_folder):
+    name_file = []
     with open(list_to_search) as file:
         lines = [line.rstrip() for line in file]
 
@@ -51,9 +54,10 @@ def find_coordinates(list_to_search, list_input_files):
         index_page = 0
         index_count = 0
 
+        print('Поиск в файле: ' + file_pdf)
         for page in pages:
             index_page += 1
-            print('Обработано страниц ' + str(index_page) + ' из ' + str(count_pages))
+            print('Обработано страниц ' + str(index_page) + ' из ' + str(count_pages) + ' в файле ' + file_pdf)
             interpreter.process_page(page)
             layout = device.get_result()
             for lobj in layout:
@@ -64,8 +68,13 @@ def find_coordinates(list_to_search, list_input_files):
                         try:
                             fullstring.index(substring[24:])
                             print('\nНайдено совпадение: ' + substring[24:])
+
                             i_out = ''
-                            for i in getInfoFromDataMatrix(substring, "datamatrix"):
+                            data_code = getInfoFromDataMatrix(substring, "datamatrix")
+                            print(data_code)
+                            name_file.append(data_code[2])
+                            print(name_file)
+                            for i in data_code:
                                 i_out += i + ' '
                             print(i_out + '\n')
                         except ValueError:
@@ -76,14 +85,19 @@ def find_coordinates(list_to_search, list_input_files):
                             crop_page = extract_image(x, y, index_page, file_pdf_reader)
                             file_pdf_writer.add_page(crop_page)
 
-    with open(str(len(lines)) + '.pdf', "wb") as fp:
+    replace_values = {"/": "%", "[": "", "]": "", "\'": "", "\"": ""}
+    name = str(list(set(name_file))) + ' (' + str(len(lines)) + ' pcs).pdf'
+    name = multiple_replace(name, replace_values)
+    Path(target_folder).mkdir(parents=True, exist_ok=True)
+    with open(target_folder + os.sep + name, "wb") as fp:
         file_pdf_writer.write(fp)
 
 
-def find_lines(find_lines):
-    with open(find_lines) as file:
-        return [line.rstrip()[24:] for line in file]
+def multiple_replace(target_str, replace_values):
+    for i, j in replace_values.items():
+        target_str = target_str.replace(i, j)
+    return target_str
 
 
 if __name__ == "__main__":
-    find_coordinates('find_lines.txt', glob.glob("*.pdf"))
+    find_coordinates('find_lines.txt', glob.glob("*.pdf"), "out")
