@@ -32,10 +32,10 @@ def extract_image(x, y, index_page, file_pdf_reader):
 
 
 def find_coordinates(list_to_search, list_input_files, target_folder):
-    name_file = []
     with open(list_to_search) as file:
         lines = [line.rstrip() for line in file]
-
+    name_file = []
+    lines_not_found = lines.copy()
     file_pdf_writer = PdfWriter()
     for file_pdf in list_input_files:
         fp = open(file_pdf, 'rb')
@@ -68,15 +68,10 @@ def find_coordinates(list_to_search, list_input_files, target_folder):
                         try:
                             fullstring.index(substring[24:])
                             print('\nНайдено совпадение: ' + substring[24:])
-
-                            i_out = ''
-                            data_code = getInfoFromDataMatrix(substring, "datamatrix")
-                            print(data_code)
-                            name_file.append(data_code[2])
-                            print(name_file)
-                            for i in data_code:
-                                i_out += i + ' '
-                            print(i_out + '\n')
+                            info_code = print_data_code(substring)
+                            name_file.append(info_code[1])
+                            print(info_code[0])
+                            lines_not_found.remove(substring)
                         except ValueError:
                             logging.info('Нет совпадений')
                         else:
@@ -85,12 +80,24 @@ def find_coordinates(list_to_search, list_input_files, target_folder):
                             crop_page = extract_image(x, y, index_page, file_pdf_reader)
                             file_pdf_writer.add_page(crop_page)
 
+    print('Не найденные коды: ' + str(lines_not_found))
+    Path(target_folder).mkdir(parents=True, exist_ok=True)
+    with open(target_folder + os.sep + print_name_file(name_file, lines), "wb") as fp:
+        file_pdf_writer.write(fp)
+
+
+def print_data_code(substring):
+    i_out = ''
+    data_code = getInfoFromDataMatrix(substring, "datamatrix")
+    for i in data_code:
+        i_out += i + ' '
+    return [i_out + '\n', data_code[2]]
+
+
+def print_name_file(name_file, lines):
     replace_values = {"/": "%", "[": "", "]": "", "\'": "", "\"": ""}
     name = str(list(set(name_file))) + ' (' + str(len(lines)) + ' pcs).pdf'
-    name = multiple_replace(name, replace_values)
-    Path(target_folder).mkdir(parents=True, exist_ok=True)
-    with open(target_folder + os.sep + name, "wb") as fp:
-        file_pdf_writer.write(fp)
+    return multiple_replace(name, replace_values)
 
 
 def multiple_replace(target_str, replace_values):
