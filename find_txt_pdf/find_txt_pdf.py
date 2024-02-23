@@ -1,5 +1,7 @@
+'''
+Скрипт предназначен для поиска требуемых кодов в pdf документе с общим массивом кодов после выгрузки, сохраняя вырезанные в новый pdf файл.
+'''
 import glob
-import os
 import logging
 
 from pdfminer.layout import LAParams, LTTextBox
@@ -14,32 +16,8 @@ from pdfminer.pdfinterp import resolve1
 # extract image
 from PyPDF2 import PdfWriter, PdfReader
 # folder
-from os import listdir
-from os.path import isfile, join
 
-'''
-Бета версия скрипта для вырезания картинок кодов из сформированныx файлов по координатам найденного текста
-Алгоритм работы:
-+ 1. Найти текст
-+ 2. Сравнить с массивом из текстового файла
-+ 3. При совпадении текста с массивом передать в метод для вырезки изображения по координатам
-+ 4. Добавить изображение в общий файл PDF с кодами по списку
-Upgrade:
-+ 5. Настроить считывание из несколькиx PDF файлов
-6. Настроить распознавание и считывание с термоэтикеток
-
-План работы:
-+ 1. Сделать поиск координат строк
-+ 2. Настроить корректный вывод колличества страниц
-+ 3. Настроить считывание массива нужныx кодов из требуемого массива
-+ 3.1 Настроить корректное считывание. Сократить строку из за разделения на две части
-+ 4. Настроить поиск подстроки и вывод кооррдинат для вырезки текста
-+ 5. Настроить вырезание области вокруг координаты найденного текста и соxранить в изображение
-+ 6. Собрать все изображения в один PDF
-Upgrade:
-7. Настроить считывание файлов из дирректории и запись в выxодной файл по названию дирректории с наименование товара
-8. Настроить обработку формата термоэтикеток с автоматическим распознаванием
-'''
+from api_crpt.api_crpt import getInfoFromDataMatrix
 
 
 def extract_image(x, y, index_page, file_pdf_reader):
@@ -51,12 +29,14 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_coordinates(lines_for_find, list_input_files):
+def find_coordinates(list_to_search, list_input_files):
+    with open(list_to_search) as file:
+        lines = [line.rstrip() for line in file]
+
     file_pdf_writer = PdfWriter()
     for file_pdf in list_input_files:
         fp = open(file_pdf, 'rb')
         file_pdf_reader = PdfReader(file_pdf)
-
 
         # This will give you the count of pages
         parser = PDFParser(fp)
@@ -80,10 +60,14 @@ def find_coordinates(lines_for_find, list_input_files):
                 if isinstance(lobj, LTTextBox):
                     x, y, fullstring = lobj.bbox[0], lobj.bbox[3], lobj.get_text().strip()
 
-                    for substring in lines_for_find:
+                    for substring in lines:
                         try:
-                            fullstring.index(substring)
-                            print('Найдено совпадение: ' + substring)
+                            fullstring.index(substring[24:])
+                            print('\nНайдено совпадение: ' + substring[24:])
+                            i_out = ''
+                            for i in getInfoFromDataMatrix(substring, "datamatrix"):
+                                i_out += i + ' '
+                            print(i_out + '\n')
                         except ValueError:
                             logging.info('Нет совпадений')
                         else:
@@ -92,7 +76,7 @@ def find_coordinates(lines_for_find, list_input_files):
                             crop_page = extract_image(x, y, index_page, file_pdf_reader)
                             file_pdf_writer.add_page(crop_page)
 
-    with open(str(len(lines_for_find)) + '.pdf', "wb") as fp:
+    with open(str(len(lines)) + '.pdf', "wb") as fp:
         file_pdf_writer.write(fp)
 
 
@@ -102,4 +86,4 @@ def find_lines(find_lines):
 
 
 if __name__ == "__main__":
-    find_coordinates(find_lines('find_lines.txt'), glob.glob("*.pdf"))
+    find_coordinates('find_lines.txt', glob.glob("*.pdf"))
