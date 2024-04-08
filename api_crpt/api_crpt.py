@@ -71,8 +71,13 @@ def getInfoFromDataMatrix(content, type):
 
 if __name__ == "__main__":
     with open('datamatrix.txt') as f:
-        for code in f.read().splitlines():
+        counter = 0
+        data_codes = f.read().splitlines()
+        len_data_codes = len(data_codes)
+
+        for code in data_codes:
+            counter += 1
             i_out = ''
-            for i in getInfoFromDataMatrix(code, "datamatrix"):
-                i_out += i + ' '
-            print(i_out)
+            for info_data in getInfoFromDataMatrix(code, "datamatrix"):
+                i_out += info_data + ' '
+            print(str(counter) + '/' + str(len_data_codes) + ' ' + i_out)
