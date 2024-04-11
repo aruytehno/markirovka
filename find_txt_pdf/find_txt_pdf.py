@@ -78,12 +78,16 @@ def find_coordinates(search_codes, list_input_files, target_folder):
                             crop_page = extract_image(x, y, index_page, file_pdf_reader)
                             file_pdf_writer.add_page(crop_page)
 
-    print('Не найденны кодов ' + str(len(lines_not_found)) + ':')
-    for code_not_found in lines_not_found:
-        print(code_not_found)
-    Path(target_folder).mkdir(parents=True, exist_ok=True)
-    with open(target_folder + os.sep + print_name_file(name_file, search_codes), "wb") as fp:
-        file_pdf_writer.write(fp)
+    if len(lines_not_found) == 0:
+        print('\nВсе коды найдены')
+    else:
+        print('\nНе найденные коды: ' + str(len(lines_not_found)))
+        for code_not_found in lines_not_found:
+            print(code_not_found)
+
+    if len(file_pdf_writer.pages) > 0:
+        with open(target_folder + os.sep + print_name_file(name_file, search_codes), "wb") as fp:
+            file_pdf_writer.write(fp)
 
 
 def print_data_code(substring):
