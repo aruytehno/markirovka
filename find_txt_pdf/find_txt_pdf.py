@@ -31,11 +31,9 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_coordinates(list_to_search, list_input_files, target_folder):
-    with open(list_to_search) as file:
-        lines = [line.rstrip() for line in file]
+def find_coordinates(search_codes, list_input_files, target_folder):
     name_file = []
-    lines_not_found = lines.copy()
+    lines_not_found = search_codes.copy()
     file_pdf_writer = PdfWriter()
     for file_pdf in list_input_files:
         fp = open(file_pdf, 'rb')
@@ -64,7 +62,7 @@ def find_coordinates(list_to_search, list_input_files, target_folder):
                 if isinstance(lobj, LTTextBox):
                     x, y, fullstring = lobj.bbox[0], lobj.bbox[3], lobj.get_text().strip()
 
-                    for substring in lines:
+                    for substring in search_codes:
                         try:
                             fullstring.index(substring[24:])
                             print('\nНайдено совпадение: ' + substring[24:])
@@ -80,11 +78,11 @@ def find_coordinates(list_to_search, list_input_files, target_folder):
                             crop_page = extract_image(x, y, index_page, file_pdf_reader)
                             file_pdf_writer.add_page(crop_page)
 
-    print('Не найденны кодов: ' + str(len(lines_not_found)) + ':')
+    print('Не найденны кодов ' + str(len(lines_not_found)) + ':')
     for code_not_found in lines_not_found:
         print(code_not_found)
     Path(target_folder).mkdir(parents=True, exist_ok=True)
-    with open(target_folder + os.sep + print_name_file(name_file, lines), "wb") as fp:
+    with open(target_folder + os.sep + print_name_file(name_file, search_codes), "wb") as fp:
         file_pdf_writer.write(fp)
 
 
@@ -109,4 +107,30 @@ def multiple_replace(target_str, replace_values):
 
 
 if __name__ == "__main__":
-    find_coordinates('find_lines.txt', glob.glob("*.pdf"), "out")
+    if not os.path.exists('out'):
+        print('Создана папка \'out\'')
+        os.makedirs('out')
+    if not os.path.exists('input'):
+        print('Создана папка \'input\'')
+        os.makedirs('input')
+
+    list_input = glob.glob('input' + os.sep + '*.pdf')
+
+    if os.path.isfile('find_lines.txt'):
+        with open('find_lines.txt', 'r') as file:
+            codes_for_search = [line.rstrip() for line in file]
+    else:
+        print('Создан файл find_lines.txt')
+        with open('find_lines.txt', 'w') as file:
+            file.write('There should be codes for verification here')
+        sys.exit()
+
+    if len(codes_for_search) == 0:
+        print('В файле \'find_lines.txt\' нет кодов для поиска')
+        sys.exit()
+
+    if len(list_input) == 0:
+        print('В папке \'input\' нет файлов для обработки')
+        sys.exit()
+
+    find_coordinates(codes_for_search, list_input, 'out')
