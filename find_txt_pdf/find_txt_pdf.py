@@ -1,10 +1,11 @@
 '''
-Скрипт предназначен для поиска требуемых кодов в pdf документе с общим массивом кодов после выгрузки, сохраняя вырезанные в новый pdf файл.
+Скрипт предназначен для поиска требуемых кодов в pdf документе с общим массивом кодов после выгрузки,
+сохраняя вырезанные в новый pdf файл.
 '''
 import glob
 import logging
 import os
-from pathlib import Path
+import sys
 
 from pdfminer.layout import LAParams, LTTextBox
 from pdfminer.pdfpage import PDFPage
