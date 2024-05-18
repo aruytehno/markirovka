@@ -112,12 +112,11 @@ def multiple_replace(target_str, replace_values):
 
 
 if __name__ == "__main__":
-    if not os.path.exists('out'):
-        print('Создана папка \'out\'')
-        os.makedirs('out')
-    if not os.path.exists('input'):
-        print('Создана папка \'input\'')
-        os.makedirs('input')
+    list_folders = ['input', 'out']
+    for folder in list_folders:
+        if not os.path.exists(folder):
+            print('Создана папка', folder)
+            os.makedirs(folder)
 
     list_input = glob.glob('input' + os.sep + '*.pdf')
 
