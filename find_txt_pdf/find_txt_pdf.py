@@ -20,7 +20,7 @@ from pdfminer.pdfinterp import resolve1
 from PyPDF2 import PdfWriter, PdfReader
 # folder
 
-from api_crpt.api_crpt import getInfoFromDataMatrix
+from api_crpt.api_crpt import CodeChecker
 
 
 def extract_image(x, y, index_page, file_pdf_reader):
@@ -93,7 +93,8 @@ def find_coordinates(search_codes, list_input_files, target_folder):
 
 def print_data_code(substring):
     i_out = ''
-    data_code = getInfoFromDataMatrix(substring, "datamatrix")
+    code_checker = CodeChecker()
+    data_code = code_checker.get_info(substring, "datamatrix")
     for i in data_code:
         i_out += i + ' '
     return [i_out + '\n', data_code[2]]
