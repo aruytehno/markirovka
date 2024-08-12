@@ -1,4 +1,4 @@
-# markirovka
+# markirovka на основе https://github.com/li0ard/nechestniy_znak/tree/main
 Проект содержащий скрипты для работы с системой "Честный знак"
 
 ```text
