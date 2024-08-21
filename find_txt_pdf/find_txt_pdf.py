@@ -4,7 +4,6 @@
 '''
 
 import glob
-import logging
 import os
 import sys
 
@@ -167,7 +166,7 @@ if __name__ == "__main__":
     else:
         print('Создан файл find_lines.txt')
         with open('find_lines.txt', 'w') as file:
-            pass
+            file.write('There should be codes for verification here')
         sys.exit()
 
     if len(codes_for_search) == 0:
