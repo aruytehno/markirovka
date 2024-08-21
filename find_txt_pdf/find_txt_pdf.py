@@ -86,7 +86,7 @@ def find_coordinates(search_codes, list_input_files, target_folder):
                             print(info_code[0])
                             lines_not_found.remove(substring)
                         except ValueError:
-                            logging.info('Нет совпадений')
+                            pass
                         else:
                             index_count += 1
                             # print('At %r is text: %s' % ((x, y), fullstring))
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     else:
         print('Создан файл find_lines.txt')
         with open('find_lines.txt', 'w') as file:
-            file.write('There should be codes for verification here')
+            pass
         sys.exit()
 
     if len(codes_for_search) == 0:

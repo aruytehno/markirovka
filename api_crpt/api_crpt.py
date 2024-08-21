@@ -1,6 +1,9 @@
 import requests
 from urllib.parse import quote_plus
 
+import os
+import sys
+
 
 class CodeChecker:
     """
@@ -69,6 +72,15 @@ class CodeChecker:
 
 if __name__ == "__main__":
     checker = CodeChecker()
+
+    if os.path.isfile('datamatrix.txt'):
+        with open('datamatrix.txt', 'r') as file:
+            codes_for_search = [line.rstrip() for line in file]
+    else:
+        print('Создан файл datamatrix.txt')
+        with open('datamatrix.txt', 'w') as file:
+            pass
+        sys.exit()
 
     # Чтение кодов из файла
     with open('datamatrix.txt') as f:
