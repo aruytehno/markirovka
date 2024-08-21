@@ -36,21 +36,21 @@ def add_watermark_to_pdf(input_pdf_path, output_pdf_path, watermark_pdf_path):
 
 
 if __name__ == "__main__":
-    list_folders = ['out']
+    list_folders = ['input', 'out']
     for folder in list_folders:
         if not os.path.exists(folder):
             print('Создана папка', folder)
             os.makedirs(folder)
 
-    # Получаем список всех PDF-файлов в текущем каталоге, кроме водяного знака
-    pdf_files = [f for f in glob.glob("*.pdf") if f != 'watermark.pdf']
+    # Получаем список всех PDF-файлов в папке input
+    pdf_files = [f for f in glob.glob(os.path.join('input', "*.pdf"))]
 
     # Обрабатываем каждый файл
     for pdf_file in pdf_files:
         print(f'\nОбрабатывается: {pdf_file}')
         total_pages, processed_pages = add_watermark_to_pdf(
             pdf_file,
-            os.path.join('out', pdf_file),
+            os.path.join('out', os.path.basename(pdf_file)),
             'watermark.pdf'
         )
         print(f'Обработано: {processed_pages} из {total_pages} страниц.\n')
