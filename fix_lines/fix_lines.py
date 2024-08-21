@@ -1,3 +1,4 @@
+import os
 import glob
 from PyPDF2 import PdfReader, PdfWriter
 
@@ -35,6 +36,12 @@ def add_watermark_to_pdf(input_pdf_path, output_pdf_path, watermark_pdf_path):
 
 
 if __name__ == "__main__":
+    list_folders = ['out']
+    for folder in list_folders:
+        if not os.path.exists(folder):
+            print('Создана папка', folder)
+            os.makedirs(folder)
+
     # Получаем список всех PDF-файлов в текущем каталоге, кроме водяного знака
     pdf_files = [f for f in glob.glob("*.pdf") if f != 'watermark.pdf']
 
@@ -43,7 +50,7 @@ if __name__ == "__main__":
         print(f'\nОбрабатывается: {pdf_file}')
         total_pages, processed_pages = add_watermark_to_pdf(
             pdf_file,
-            pdf_file.replace('.pdf', '_fix_lines.pdf'),
+            os.path.join('out', pdf_file),
             'watermark.pdf'
         )
         print(f'Обработано: {processed_pages} из {total_pages} страниц.\n')
