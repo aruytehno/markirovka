@@ -11,8 +11,7 @@ def create_folders(list_folders):
 
 if __name__ == "__main__":
     create_folders(['search', 'input', 'out'])
-
-    fix_lines()  # input >>> out
+    fix_lines('input', 'out', 'watermark.pdf', '*.pdf')  # input >>> out
 
 
 
