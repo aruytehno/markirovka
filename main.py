@@ -3,7 +3,6 @@ import os
 
 
 def create_folders(list_folders):
-    list_folders = [list_folders]
     for name_folder in list_folders:
         if not os.path.exists(name_folder):
             print('A folder has been created', name_folder)
