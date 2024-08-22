@@ -16,7 +16,7 @@ from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfinterp import resolve1
 from PyPDF2 import PdfWriter, PdfReader
-from api_crpt.api_crpt import CodeChecker
+from api_crpt import CodeChecker
 
 
 def extract_image(x, y, index_page, file_pdf_reader):
@@ -160,12 +160,12 @@ if __name__ == "__main__":
 
     list_input = glob.glob('input' + os.sep + '*.pdf')
 
-    if os.path.isfile('find_lines.txt'):
-        with open('find_lines.txt', 'r') as file:
+    if os.path.isfile('find_txt_pdf/find_lines.txt'):
+        with open('find_txt_pdf/find_lines.txt', 'r') as file:
             codes_for_search = [line.rstrip() for line in file]
     else:
         print('Создан файл find_lines.txt')
-        with open('find_lines.txt', 'w') as file:
+        with open('find_txt_pdf/find_lines.txt', 'w') as file:
             pass
         sys.exit()
 

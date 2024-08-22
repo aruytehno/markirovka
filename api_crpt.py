@@ -73,17 +73,17 @@ class CodeChecker:
 if __name__ == "__main__":
     checker = CodeChecker()
 
-    if os.path.isfile('datamatrix.txt'):
-        with open('datamatrix.txt', 'r') as file:
+    if os.path.isfile('api_crpt/datamatrix.txt'):
+        with open('api_crpt/datamatrix.txt', 'r') as file:
             codes_for_search = [line.rstrip() for line in file]
     else:
         print('Создан файл datamatrix.txt')
-        with open('datamatrix.txt', 'w') as file:
+        with open('api_crpt/datamatrix.txt', 'w') as file:
             pass
         sys.exit()
 
     # Чтение кодов из файла
-    with open('datamatrix.txt') as f:
+    with open('api_crpt/datamatrix.txt') as f:
         data_codes = f.read().splitlines()
 
     # Проверка каждого кода и вывод результатов

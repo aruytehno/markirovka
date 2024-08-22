@@ -43,7 +43,7 @@ if __name__ == "__main__":
             os.makedirs(folder)
 
     # Получаем список всех PDF-файлов в папке input
-    pdf_files = [f for f in glob.glob(os.path.join('input', "*.pdf"))]
+    pdf_files = [f for f in glob.glob(os.path.join('fix_lines/input', "*.pdf"))]
 
     # Проверяем, есть ли файлы в папке input
     if not pdf_files:
@@ -54,7 +54,7 @@ if __name__ == "__main__":
             print(f'\nОбрабатывается: {pdf_file}')
             total_pages, processed_pages = add_watermark_to_pdf(
                 pdf_file,
-                os.path.join('out', os.path.basename(pdf_file)),
+                os.path.join('fix_lines/out', os.path.basename(pdf_file)),
                 'watermark.pdf'
             )
             print(f'Обработано: {processed_pages} из {total_pages} страниц.\n')
