@@ -80,21 +80,15 @@ class CodeChecker:
         return info_msg
 
 
-def check_datamatrix():
+def check_datamatrix(file_name):
     checker = CodeChecker()
+    make_file(file_name)
 
-    if os.path.isfile('api_crpt/datamatrix.txt'):
-        with open('api_crpt/datamatrix.txt', 'r') as file:
-            codes_for_search = [line.rstrip() for line in file]
-    else:
-        print('Создан файл datamatrix.txt')
-        with open('api_crpt/datamatrix.txt', 'w') as file:
-            pass
-        sys.exit()
 
     # Чтение кодов из файла
-    with open('api_crpt/datamatrix.txt') as f:
+    with open(file_name) as f:
         data_codes = f.read().splitlines()
+
 
     # Проверка каждого кода и вывод результатов
     for index, code in enumerate(data_codes, start=1):
@@ -105,8 +99,7 @@ def check_datamatrix():
 
 
 '''
-Скрипт предназначен для поиска требуемых кодов в PDF-документе с общим массивом кодов после выгрузки,
-сохраняя вырезанные в новый PDF-файл.
+Скрипт для поиска кодов в PDF-документе с общим массивом кодов после выгрузки, сохраняя найденные в новый PDF-файл.
 '''
 
 
@@ -251,14 +244,7 @@ def find_txt_pdf():
 
     list_input = glob.glob('input' + os.sep + '*.pdf')
 
-    if os.path.isfile('find_txt_pdf/find_lines.txt'):
-        with open('find_txt_pdf/find_lines.txt', 'r') as file:
-            codes_for_search = [line.rstrip() for line in file]
-    else:
-        print('Создан файл find_lines.txt')
-        with open('find_txt_pdf/find_lines.txt', 'w') as file:
-            pass
-        sys.exit()
+    codes_for_search = make_file('datamatrix.txt')
 
     if len(codes_for_search) == 0:
         print('В файле \'find_lines.txt\' нет кодов для поиска')
@@ -270,9 +256,9 @@ def find_txt_pdf():
 
     find_coordinates(codes_for_search, list_input, 'out')
 
-
-
-
+'''
+Скрипт для фикса линий в  PDF-файлах.
+'''
 
 def fix_lines(input_folder, out_folder, watermark_pdf_path, file_type):
     # Получаем список всех PDF-файлов
@@ -314,8 +300,19 @@ def create_folders(list_folders):
             os.makedirs(name_folder)
 
 
+def make_file(file_name):
+    if os.path.isfile(file_name):
+        with open(file_name, 'r') as file:
+            lines= [line.rstrip() for line in file]
+    else:
+        print(f'Создан файл {file_name}')
+        with open(file_name, 'w') as file:
+            pass
+    return lines
+
+
 if __name__ == "__main__":
     create_folders(['search', 'input', 'out'])
     fix_lines('input', 'out', 'watermark.pdf', '*.pdf')  # input >>> out
-    find_txt_pdf()
-    check_datamatrix()
+    find_txt_pdf()  # search  >>> datamatrix.txt >>> out
+    check_datamatrix('datamatrix.txt')  # datamatrix.txt >>> API
