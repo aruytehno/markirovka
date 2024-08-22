@@ -35,15 +35,9 @@ def add_watermark_to_pdf(input_pdf_path, output_pdf_path, watermark_pdf_path):
     return total_pages, total_pages
 
 
-if __name__ == "__main__":
-    list_folders = ['input', 'out']
-    for folder in list_folders:
-        if not os.path.exists(folder):
-            print('Создана папка', folder)
-            os.makedirs(folder)
-
+def fix_lines():
     # Получаем список всех PDF-файлов в папке input
-    pdf_files = [f for f in glob.glob(os.path.join('fix_lines/input', "*.pdf"))]
+    pdf_files = [f for f in glob.glob(os.path.join('input', "*.pdf"))]
 
     # Проверяем, есть ли файлы в папке input
     if not pdf_files:
