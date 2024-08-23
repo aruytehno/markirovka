@@ -118,8 +118,7 @@ def extract_image(x, y, index_page, file_pdf_reader):
 
 
 def find_txt_pdf(file_name, list_input_files, target_folder):
-    with open(file_name, 'r') as file:
-        search_codes = [line.rstrip() for line in file]
+
     """
     Ищет указанные коды в списке PDF-документов и сохраняет вырезанные страницы с найденными кодами в новый PDF-файл.
 
@@ -228,10 +227,10 @@ def multiple_replace(target_str, replace_values):
     return target_str
 
 
-
 '''
 Скрипт для фикса линий в  PDF-файлах.
 '''
+
 
 def fix_lines(input_folder, out_folder, watermark_pdf_path, file_type):
     # Получаем список всех PDF-файлов
@@ -259,22 +258,54 @@ def fix_lines(input_folder, out_folder, watermark_pdf_path, file_type):
             pdf_writer.write(out_file)
 
 
-def check_available_materials(input_folder, file_type):
-    # Получаем список всех PDF-файлов
-    pdf_files = [f for f in glob.glob(os.path.join(input_folder, file_type))]
+def check_file_exists(directory, file_name):
+    files_in_directory = os.listdir(directory)
+    return file_name in files_in_directory
 
-    # Проверяем, есть ли файлы в папке input
-    if not pdf_files:
-        print('Папка "input" пуста. Нет файлов для обработки.')
-    else:
 
-        if len(lines) == 0:
-            print('В файле \'find_lines.txt\' нет кодов для поиска')
-            sys.exit()
+def read_file(file_path):
+    try:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+            if not lines:
+                print(f"Файл '{file_path}' пустой.")
+                exit()
+            return lines
+    except FileNotFoundError:
+        print(f"Файл '{file_path}' не найден.")
+        with open(file_path, 'w') as file:
+            pass
+        print(f"Создан файл '{file_path}'")
+        exit()
 
-        if len(list_input) == 0:
-            print('В папке \'input\' нет файлов для обработки')
-            sys.exit()
+
+
+
+    # with open(file_path, 'r') as f:
+    #     file_content = f.read()
+
+            # if string in file_content:
+            #     print(f"String '{string}' found in file '{file_path}'")
+            # else:
+            #     print(f"String '{string}' not found in file '{file_path}'")
+
+
+# def check_available_materials(input_folder, file_type):
+#     # Получаем список всех PDF-файлов
+#     pdf_files = [f for f in glob.glob(os.path.join(input_folder, file_type))]
+#
+#     # Проверяем, есть ли файлы в папке input
+#     if not pdf_files:
+#         print('Папка "input" пуста. Нет файлов для обработки.')
+#     else:
+#
+#         if len(lines) == 0:
+#             print('В файле \'find_lines.txt\' нет кодов для поиска')
+#             sys.exit()
+#
+#         if len(list_input) == 0:
+#             print('В папке \'input\' нет файлов для обработки')
+#             sys.exit()
 
 def make_folder(name_folder):
     if not os.path.exists(name_folder):
@@ -284,20 +315,14 @@ def make_folder(name_folder):
         print(f'Папка "{name_folder}" существует')
 
 
-def make_file(file_name):
-    if os.path.isfile(file_name):
-        print(f'Файл  {file_name} существует')
-    else:
-        with open(file_name, 'w') as file:
-            pass
-        print(f'Создан файл {file_name}')
+
+
 
 
 if __name__ == "__main__":
-    for folder in ['search', 'input', 'out']:
-        make_folder(folder)
-    make_file('datamatrix.txt')
-
-    fix_lines('input', 'out', 'watermark.pdf', '*.pdf')  # input >>> out
-    find_txt_pdf('datamatrix.txt', glob.glob('search' + os.sep + '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
-    check_datamatrix('datamatrix.txt')  # datamatrix.txt >>> API
+    # for folder in ['search', 'input', 'out']:
+    #     make_folder(folder)
+    print(read_file('datamatrix.txt'))
+    # fix_lines('input', 'out', 'watermark.pdf', '*.pdf')  # input >>> out
+    # find_txt_pdf('datamatrix.txt', glob.glob('search' + os.sep + '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
+    # check_datamatrix('datamatrix.txt')  # datamatrix.txt >>> API
