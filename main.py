@@ -112,7 +112,7 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_txt_pdf(search_codes, list_input_files, target_folder, validate=False):
+def find_txt_pdf(search_codes, list_input_files, target_folder, validate = False):
 
     """
     Ищет указанные коды в списке PDF-документов и сохраняет вырезанные страницы с найденными кодами в новый PDF-файл.
@@ -273,12 +273,12 @@ def read_file(file_path):
 
 
 def list_files(input_folder, file_type):
-    # Получаем список всех файлов с указанным типом
-    list_files = [f for f in glob.glob(os.path.join(input_folder, file_type))]
+    # Получаем список всех файлов с указанным типом из всех вложенных директорий
+    list_files = [f for f in glob.glob(os.path.join(input_folder, '**', file_type), recursive=True)]
 
     # Если файлов нет, выводим сообщение и останавливаем программу
     if not list_files:
-        print(f"В папке '{input_folder}' нет файлов с типом '{file_type}'.")
+        print(f"В папке '{input_folder}' и ее вложенных директориях нет файлов с типом '{file_type}'.")
         exit()
 
     return list_files
@@ -299,4 +299,5 @@ if __name__ == "__main__":
     # print(list_files('input', '*.pdf'))
     # fix_lines(list_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
     # check_datamatrix(read_file('datamatrix.txt'))  # datamatrix.txt >>> API
-    find_txt_pdf(read_file('datamatrix.txt'), list_files('input', '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
+    print(list_files('search', '*.pdf'))
+    # find_txt_pdf(read_file('datamatrix.txt'), list_files('input', '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
