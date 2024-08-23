@@ -227,16 +227,12 @@ def multiple_replace(target_str, replace_values):
     return target_str
 
 
-'''
-Скрипт для фикса линий в  PDF-файлах.
-'''
-
-
-def fix_lines(input_folder, out_folder, watermark_pdf_path, file_type):
-    # Получаем список всех PDF-файлов
-    pdf_files = [f for f in glob.glob(os.path.join(input_folder, file_type))]
+def fix_lines(list_pdf_files, out_folder, watermark_pdf_path):
+    '''
+    Скрипт для фикса линий в PDF-файлах.
+    '''
     # Обрабатываем каждый файл
-    for pdf_file in pdf_files:
+    for pdf_file in list_pdf_files:
         # Создаем объект PdfReader для водяного знака и первой страницы водяного знака
         watermark_reader = PdfReader(watermark_pdf_path)
         watermark_page = watermark_reader.pages[0]
@@ -252,7 +248,7 @@ def fix_lines(input_folder, out_folder, watermark_pdf_path, file_type):
             page.merge_page(watermark_page)
             pdf_writer.add_page(page)
             i = i + 1
-            print(f'Обработано: {i} из {total_pages} страниц в файле {pdf_file}.\n')
+            print(f'Обработано: {i} из {total_pages} страниц в файле {pdf_file}.')
 
         with open(os.path.join(out_folder, os.path.basename(pdf_file)), 'wb') as out_file:
             pdf_writer.write(out_file)
@@ -279,50 +275,31 @@ def read_file(file_path):
         exit()
 
 
+def list_files(input_folder, file_type):
+    # Получаем список всех файлов с указанным типом
+    list_files = [f for f in glob.glob(os.path.join(input_folder, file_type))]
+
+    # Если файлов нет, выводим сообщение и останавливаем программу
+    if not list_files:
+        print(f"В папке '{input_folder}' нет файлов с типом '{file_type}'.")
+        exit()
+
+    return list_files
 
 
-    # with open(file_path, 'r') as f:
-    #     file_content = f.read()
-
-            # if string in file_content:
-            #     print(f"String '{string}' found in file '{file_path}'")
-            # else:
-            #     print(f"String '{string}' not found in file '{file_path}'")
-
-
-# def check_available_materials(input_folder, file_type):
-#     # Получаем список всех PDF-файлов
-#     pdf_files = [f for f in glob.glob(os.path.join(input_folder, file_type))]
-#
-#     # Проверяем, есть ли файлы в папке input
-#     if not pdf_files:
-#         print('Папка "input" пуста. Нет файлов для обработки.')
-#     else:
-#
-#         if len(lines) == 0:
-#             print('В файле \'find_lines.txt\' нет кодов для поиска')
-#             sys.exit()
-#
-#         if len(list_input) == 0:
-#             print('В папке \'input\' нет файлов для обработки')
-#             sys.exit()
-
-def make_folder(name_folder):
-    if not os.path.exists(name_folder):
-        os.makedirs(name_folder)
-        print(f'Создана папка "{name_folder}"')
-    else:
-        print(f'Папка "{name_folder}" существует')
-
-
-
-
+def make_folders(folders):
+    for name_folder in folders:
+        if not os.path.exists(name_folder):
+            os.makedirs(name_folder)
+            print(f'Создана папка "{name_folder}"')
+        else:
+            print(f'Папка "{name_folder}" существует')
 
 
 if __name__ == "__main__":
-    # for folder in ['search', 'input', 'out']:
-    #     make_folder(folder)
-    print(read_file('datamatrix.txt'))
-    # fix_lines('input', 'out', 'watermark.pdf', '*.pdf')  # input >>> out
+    # make_folders(['search', 'input', 'out'])
+    # print(read_file('datamatrix.txt'))
+    print(list_files('input', '*.pdf'))
+    # fix_lines(list_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
     # find_txt_pdf('datamatrix.txt', glob.glob('search' + os.sep + '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
     # check_datamatrix('datamatrix.txt')  # datamatrix.txt >>> API
