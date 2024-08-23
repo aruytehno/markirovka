@@ -117,7 +117,9 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_coordinates(search_codes, list_input_files, target_folder):
+def find_txt_pdf(file_name, list_input_files, target_folder):
+    with open(file_name, 'r') as file:
+        search_codes = [line.rstrip() for line in file]
     """
     Ищет указанные коды в списке PDF-документов и сохраняет вырезанные страницы с найденными кодами в новый PDF-файл.
 
@@ -226,39 +228,38 @@ def multiple_replace(target_str, replace_values):
     return target_str
 
 
-def find_txt_pdf(file_name):
-    """
-    Основной блок кода выполняется при запуске скрипта как основной программы.
-    Создаются необходимые папки, считываются пути к входным PDF-файлам и коды для поиска,
-    и вызывается функция find_coordinates для поиска кодов и сохранения результатов.
-    """
-    list_folders = ['input', 'out']
-    for folder in list_folders:
-        if not os.path.exists(folder):
-            print('Создана папка', folder)
-            os.makedirs(folder)
-
-    list_input = glob.glob('input' + os.sep + '*.pdf')
-
-    with open(file_name, 'r') as file:
-        lines = [line.rstrip() for line in file]
-    if len(lines) == 0:
-        print('В файле \'find_lines.txt\' нет кодов для поиска')
-        sys.exit()
-
-    if len(list_input) == 0:
-        print('В папке \'input\' нет файлов для обработки')
-        sys.exit()
-
-    find_coordinates(lines, list_input, 'out')
-
 
 '''
 Скрипт для фикса линий в  PDF-файлах.
 '''
 
-
 def fix_lines(input_folder, out_folder, watermark_pdf_path, file_type):
+    # Получаем список всех PDF-файлов
+    pdf_files = [f for f in glob.glob(os.path.join(input_folder, file_type))]
+    # Обрабатываем каждый файл
+    for pdf_file in pdf_files:
+        # Создаем объект PdfReader для водяного знака и первой страницы водяного знака
+        watermark_reader = PdfReader(watermark_pdf_path)
+        watermark_page = watermark_reader.pages[0]
+        pdf_reader = PdfReader(pdf_file)
+        pdf_writer = PdfWriter()
+
+        i = 0
+        total_pages = len(pdf_reader.pages)
+
+        # Проходим по каждой странице входного PDF и добавляем водяной знак
+        for page_num in range(total_pages):
+            page = pdf_reader.pages[page_num]
+            page.merge_page(watermark_page)
+            pdf_writer.add_page(page)
+            i = i + 1
+            print(f'Обработано: {i} из {total_pages} страниц в файле {pdf_file}.\n')
+
+        with open(os.path.join(out_folder, os.path.basename(pdf_file)), 'wb') as out_file:
+            pdf_writer.write(out_file)
+
+
+def check_available_materials(input_folder, file_type):
     # Получаем список всех PDF-файлов
     pdf_files = [f for f in glob.glob(os.path.join(input_folder, file_type))]
 
@@ -266,30 +267,14 @@ def fix_lines(input_folder, out_folder, watermark_pdf_path, file_type):
     if not pdf_files:
         print('Папка "input" пуста. Нет файлов для обработки.')
     else:
-        # Обрабатываем каждый файл
-        for pdf_file in pdf_files:
-            print(f'\nОбрабатывается: {pdf_file}')
 
-            # Создаем объект PdfReader для водяного знака и первой страницы водяного знака
-            watermark_reader = PdfReader(watermark_pdf_path)
-            watermark_page = watermark_reader.pages[0]
-            pdf_reader = PdfReader(pdf_file)
-            pdf_writer = PdfWriter()
+        if len(lines) == 0:
+            print('В файле \'find_lines.txt\' нет кодов для поиска')
+            sys.exit()
 
-            i = 0
-            total_pages = len(pdf_reader.pages)
-
-            # Проходим по каждой странице входного PDF и добавляем водяной знак
-            for page_num in range(total_pages):
-                page = pdf_reader.pages[page_num]
-                page.merge_page(watermark_page)
-                pdf_writer.add_page(page)
-                i = i + 1
-
-            with open(os.path.join(out_folder, os.path.basename(pdf_file)), 'wb') as out_file:
-                pdf_writer.write(out_file)
-            print(f'Обработано: {i} из {total_pages} страниц.\n')
-
+        if len(list_input) == 0:
+            print('В папке \'input\' нет файлов для обработки')
+            sys.exit()
 
 def make_folder(name_folder):
     if not os.path.exists(name_folder):
@@ -312,6 +297,7 @@ if __name__ == "__main__":
     for folder in ['search', 'input', 'out']:
         make_folder(folder)
     make_file('datamatrix.txt')
+
     fix_lines('input', 'out', 'watermark.pdf', '*.pdf')  # input >>> out
-    find_txt_pdf('datamatrix.txt')  # search  >>> datamatrix.txt >>> out
+    find_txt_pdf('datamatrix.txt', glob.glob('search' + os.sep + '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
     check_datamatrix('datamatrix.txt')  # datamatrix.txt >>> API
