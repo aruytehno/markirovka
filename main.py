@@ -112,7 +112,7 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_txt_pdf(search_codes, list_input_files, target_folder):
+def find_txt_pdf(search_codes, list_input_files, target_folder, validate=False):
 
     """
     Ищет указанные коды в списке PDF-документов и сохраняет вырезанные страницы с найденными кодами в новый PDF-файл.
@@ -157,6 +157,8 @@ def find_txt_pdf(search_codes, list_input_files, target_folder):
                         try:
                             fullstring.index(substring[24:])
                             print('\nНайдено совпадение: ' + substring[24:])
+                            if validate: # Добавить к коду информацию о валидности
+                                pass
                             info_code = print_data_code(substring)
                             name_file.append(info_code[1])
                             print(info_code[0])
