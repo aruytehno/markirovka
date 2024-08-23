@@ -17,6 +17,7 @@ from urllib.parse import quote_plus
 Скрипт для проверки валидности кодов и получения их статусов через API ГИС МТ.
 """
 
+
 class CodeChecker:
     BASE_URL = "https://mobile.api.crpt.ru/mobile/check"
 
@@ -194,7 +195,7 @@ def fix_lines(list_pdf_files, out_folder, watermark_pdf_path):
 def read_data(file_path):
     try:
         with open(file_path, 'r') as f:
-            lines = f.readlines()
+            lines = [line.strip() for line in f.readlines()]
             if not lines:
                 print(f"Файл '{file_path}' пустой.")
                 exit()
