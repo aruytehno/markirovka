@@ -80,13 +80,8 @@ class CodeChecker:
         return info_msg
 
 
-def check_datamatrix(file_name):
+def check_datamatrix(data_codes):
     checker = CodeChecker()
-    make_file(file_name)
-
-    # Чтение кодов из файла
-    with open(file_name) as f:
-        data_codes = f.read().splitlines()
 
     # Проверка каждого кода и вывод результатов
     for index, code in enumerate(data_codes, start=1):
@@ -117,7 +112,7 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_txt_pdf(file_name, list_input_files, target_folder):
+def find_txt_pdf(search_codes, list_input_files, target_folder):
 
     """
     Ищет указанные коды в списке PDF-документов и сохраняет вырезанные страницы с найденными кодами в новый PDF-файл.
@@ -299,7 +294,7 @@ def make_folders(folders):
 if __name__ == "__main__":
     # make_folders(['search', 'input', 'out'])
     # print(read_file('datamatrix.txt'))
-    print(list_files('input', '*.pdf'))
+    # print(list_files('input', '*.pdf'))
     # fix_lines(list_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
-    # find_txt_pdf('datamatrix.txt', glob.glob('search' + os.sep + '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
-    # check_datamatrix('datamatrix.txt')  # datamatrix.txt >>> API
+    # check_datamatrix(read_file('datamatrix.txt'))  # datamatrix.txt >>> API
+    find_txt_pdf(read_file('datamatrix.txt'), list_files('input', '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
