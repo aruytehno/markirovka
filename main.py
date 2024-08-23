@@ -95,15 +95,6 @@ def check_datamatrix(data_codes):
 
 
 def extract_image(x, y, index_page, file_pdf_reader):
-    """
-    Извлекает обрезанную часть страницы PDF на основе координат и индекса страницы.
-
-    :param x: Координата X центра области для обрезки (float).
-    :param y: Координата Y центра области для обрезки (float).
-    :param index_page: Индекс страницы для обработки (int).
-    :param file_pdf_reader: Объект PdfReader для чтения страниц PDF.
-    :return: Обрезанную страницу в формате PdfReader.
-    """
     crop_page = file_pdf_reader.pages[index_page - 1]
     crop_page.mediabox.left = x - 38
     crop_page.mediabox.right = x + 62
@@ -112,16 +103,7 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_txt_pdf(search_codes, list_input_files, target_folder, validate = False):
-
-    """
-    Ищет указанные коды в списке PDF-документов и сохраняет вырезанные страницы с найденными кодами в новый PDF-файл.
-
-    :param search_codes: Список кодов для поиска (list).
-    :param list_input_files: Список путей к входным PDF-файлам (list).
-    :param target_folder: Папка для сохранения результата (str).
-    :return: None
-    """
+def find_coordinates(search_codes, list_input_files, target_folder, validate=False):
     name_file = []
     lines_not_found = search_codes.copy()
     file_pdf_writer = PdfWriter()
@@ -184,12 +166,6 @@ def find_txt_pdf(search_codes, list_input_files, target_folder, validate = False
 
 
 def print_data_code(substring):
-    """
-    Получает информацию о коде и возвращает отформатированные данные.
-
-    :param substring: Код для проверки (str).
-    :return: Список с отформатированной информацией о коде и именем файла (list).
-    """
     i_out = ''
     code_checker = CodeChecker()
     data_code = code_checker.get_info(substring, "datamatrix")
@@ -199,26 +175,12 @@ def print_data_code(substring):
 
 
 def print_name_file(name_file, lines):
-    """
-    Форматирует имя файла для сохранения, заменяя нежелательные символы.
-
-    :param name_file: Список имен файлов (list).
-    :param lines: Список не найденных кодов (list).
-    :return: Отформатированное имя файла (str).
-    """
     replace_values = {"/": "%", "[": "", "]": "", "\'": "", "\"": ""}
     name = str(list(set(name_file))) + ' (' + str(len(lines)) + ' pcs).pdf'
     return multiple_replace(name, replace_values)
 
 
 def multiple_replace(target_str, replace_values):
-    """
-    Заменяет все вхождения подстрок в строке на заданные значения.
-
-    :param target_str: Целевая строка (str).
-    :param replace_values: Словарь замен, где ключи - это подстроки для замены, а значения - это заменяющие строки (dict).
-    :return: Измененную строку (str).
-    """
     for i, j in replace_values.items():
         target_str = target_str.replace(i, j)
     return target_str
@@ -299,5 +261,5 @@ if __name__ == "__main__":
     # print(list_files('input', '*.pdf'))
     # fix_lines(list_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
     # check_datamatrix(read_file('datamatrix.txt'))  # datamatrix.txt >>> API
-    print(list_files('search', '*.pdf'))
-    # find_txt_pdf(read_file('datamatrix.txt'), list_files('input', '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
+    # print(list_files('search', '*.pdf'))
+    find_coordinates(read_file('datamatrix.txt'), list_files('input', '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
