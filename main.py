@@ -115,7 +115,7 @@ def find_codes(list_input_files, search_codes, target_folder, validate=False):
                         try:
                             fullstring.index(substring[24:])
                             print('\nНайдено совпадение: ' + substring[24:])
-                            if validate: # Добавить к коду информацию о валидности
+                            if validate:  # Добавить к коду информацию о валидности
                                 pass
                             info_code = print_data_code(substring)
                             name_file.append(info_code[1])
