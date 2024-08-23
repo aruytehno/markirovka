@@ -140,6 +140,9 @@ def find_codes(list_input_files, search_codes, target_folder, validate=False):
         for code_not_found in lines_not_found:
             print(code_not_found)
 
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+
     if len(file_pdf_writer.pages) > 0:
         with open(target_folder + os.sep + print_name_file(name_file, search_codes), "wb") as fp:
             file_pdf_writer.write(fp)
@@ -171,7 +174,7 @@ def multiple_replace(target_str, replace_values):
 '''
 
 
-def fix_lines(list_pdf_files, out_folder, watermark_pdf_path):
+def fix_lines(list_pdf_files, target_folder, watermark_pdf_path):
     # Обрабатываем каждый файл
     for pdf_file in list_pdf_files:
         # Создаем объект PdfReader для водяного знака и первой страницы водяного знака
@@ -191,7 +194,10 @@ def fix_lines(list_pdf_files, out_folder, watermark_pdf_path):
             i = i + 1
             print(f'Обработано: {i} из {total_pages} страниц в файле {pdf_file}.')
 
-        with open(os.path.join(out_folder, os.path.basename(pdf_file)), 'wb') as out_file:
+        if not os.path.exists(target_folder):
+            os.makedirs(target_folder)
+
+        with open(os.path.join(target_folder, os.path.basename(pdf_file)), 'wb') as out_file:
             pdf_writer.write(out_file)
 
 
@@ -204,10 +210,9 @@ def read_data(file_path):
                 exit()
             return lines
     except FileNotFoundError:
-        print(f"Файл '{file_path}' не найден.")
         with open(file_path, 'w') as file:
             pass
-        print(f"Создан файл '{file_path}'")
+        print(f"Отсутствующий файл '{file_path}' создан")
         exit()
 
 
