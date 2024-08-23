@@ -80,7 +80,7 @@ def extract_image(x, y, index_page, file_pdf_reader):
     return crop_page
 
 
-def find_coordinates(search_codes, list_input_files, target_folder, validate=False):
+def find_codes(list_input_files, search_codes, target_folder, validate=False):
     name_file = []
     lines_not_found = search_codes.copy()
     file_pdf_writer = PdfWriter()
@@ -111,7 +111,6 @@ def find_coordinates(search_codes, list_input_files, target_folder, validate=Fal
             for lobj in layout:
                 if isinstance(lobj, LTTextBox):
                     x, y, fullstring = lobj.bbox[0], lobj.bbox[3], lobj.get_text().strip()
-
                     for substring in search_codes:
                         try:
                             fullstring.index(substring[24:])
@@ -192,12 +191,7 @@ def fix_lines(list_pdf_files, out_folder, watermark_pdf_path):
             pdf_writer.write(out_file)
 
 
-def check_file_exists(directory, file_name):
-    files_in_directory = os.listdir(directory)
-    return file_name in files_in_directory
-
-
-def read_file(file_path):
+def read_data(file_path):
     try:
         with open(file_path, 'r') as f:
             lines = f.readlines()
@@ -213,7 +207,11 @@ def read_file(file_path):
         exit()
 
 
-def list_files(input_folder, file_type):
+def get_files(input_folder, file_type):
+    if not os.path.exists(input_folder):
+        os.makedirs(input_folder)
+        print(f'Отсутствующая папка "{input_folder}" была создана')
+        exit()
     # Получаем список всех файлов с указанным типом из всех вложенных директорий
     list_files = [f for f in glob.glob(os.path.join(input_folder, '**', file_type), recursive=True)]
 
@@ -221,24 +219,10 @@ def list_files(input_folder, file_type):
     if not list_files:
         print(f"В папке '{input_folder}' и ее вложенных директориях нет файлов с типом '{file_type}'.")
         exit()
-
     return list_files
 
 
-def make_folders(folders):
-    for name_folder in folders:
-        if not os.path.exists(name_folder):
-            os.makedirs(name_folder)
-            print(f'Создана папка "{name_folder}"')
-        else:
-            print(f'Папка "{name_folder}" существует')
-
-
 if __name__ == "__main__":
-    # make_folders(['search', 'input', 'out'])
-    # print(read_file('datamatrix.txt'))
-    # print(list_files('input', '*.pdf'))
-    # fix_lines(list_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
-    # check_datamatrix(read_file('datamatrix.txt'))  # datamatrix.txt >>> API
-    # print(list_files('search', '*.pdf'))
-    find_coordinates(read_file('datamatrix.txt'), list_files('input', '*.pdf'), 'out')  # search  >>> datamatrix.txt >>> out
+    fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
+    check_datamatrix(read_data('datamatrix.txt'))  # datamatrix.txt >>> API
+    find_codes(get_files('input', '*.pdf'), read_data('datamatrix.txt'), 'out')  # search  >>> datamatrix.txt >>> out
