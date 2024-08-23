@@ -1,5 +1,4 @@
 import os
-import sys
 import glob
 
 from pdfminer.layout import LAParams, LTTextBox
@@ -14,29 +13,14 @@ from PyPDF2 import PdfWriter, PdfReader
 import requests
 from urllib.parse import quote_plus
 
+"""
+Скрипт для проверки валидности кодов и получения их статусов через API ГИС МТ.
+"""
 
 class CodeChecker:
-    """
-    Класс для проверки валидности кодов и получения их статусов через API ГИС МТ.
-
-    Атрибуты:
-    - BASE_URL: Базовый URL для запросов к API.
-
-    Методы:
-    - get_info: Получает информацию о коде, проверяя его по типу.
-    - _get_info: Внутренний метод для отправки запроса и получения данных.
-    """
-
     BASE_URL = "https://mobile.api.crpt.ru/mobile/check"
 
     def _get_info(self, code, code_type):
-        """
-        Отправляет запрос к API для получения информации о коде.
-
-        :param code: Код для проверки (например, DataMatrix, EAN13).
-        :param code_type: Тип кода ('datamatrix', 'ean13', 'qr').
-        :return: JSON ответ от API или None в случае ошибки.
-        """
         encoded_code = quote_plus(code)
         url = f"{self.BASE_URL}?code={encoded_code}&codeType={code_type}"
         try:
@@ -48,13 +32,6 @@ class CodeChecker:
             return None
 
     def get_info(self, code, code_type="datamatrix"):
-        """
-        Получает информацию о коде и возвращает статус и данные о продукте.
-
-        :param code: Код для проверки.
-        :param code_type: Тип кода ('datamatrix', 'ean13', 'qr').
-        :return: Список сообщений о статусе и продукте.
-        """
         data = self._get_info(code, code_type)
         if not data:
             return ["Ошибка получения данных 🛑"]
@@ -186,10 +163,12 @@ def multiple_replace(target_str, replace_values):
     return target_str
 
 
+'''
+Скрипт для фикса линий в PDF-файлах.
+'''
+
+
 def fix_lines(list_pdf_files, out_folder, watermark_pdf_path):
-    '''
-    Скрипт для фикса линий в PDF-файлах.
-    '''
     # Обрабатываем каждый файл
     for pdf_file in list_pdf_files:
         # Создаем объект PdfReader для водяного знака и первой страницы водяного знака
