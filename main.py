@@ -223,6 +223,6 @@ def get_files(input_folder, file_type):
 
 
 if __name__ == "__main__":
-    fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
     check_datamatrix(read_data('datamatrix.txt'))  # datamatrix.txt >>> API
     find_codes(get_files('input', '*.pdf'), read_data('datamatrix.txt'), 'out')  # search  >>> datamatrix.txt >>> out
+    fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
