@@ -1,2 +1,1 @@
 pdfminer
-pdfminer.six==20201018
