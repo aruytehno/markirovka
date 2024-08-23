@@ -160,6 +160,7 @@ cython_debug/
 .idea/
 
 
-api_crpt
-find_txt_pdf
-fix_lines
+input
+out
+search
+datamatrix.txt
