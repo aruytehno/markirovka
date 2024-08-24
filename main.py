@@ -116,11 +116,14 @@ def find_codes(list_input_files, search_codes, target_folder, validate=False):
                         try:
                             fullstring.index(substring[24:])
                             print('\nНайдено совпадение: ' + substring[24:])
-                            # Добавить к коду информацию о валидности
                             if validate:
-                                info_code = print_data_code(substring)
-                                name_file.append(info_code[1])
-                                print(info_code[0])
+                                i_out = ''
+                                code_checker = CodeChecker()
+                                data_code = code_checker.get_info(substring, "datamatrix")
+                                for i in data_code:
+                                    i_out += i + ' '
+                                name_file.append(data_code[2])
+                                print(i_out + '\n')
                             else:
                                 print(substring)
 
@@ -129,8 +132,11 @@ def find_codes(list_input_files, search_codes, target_folder, validate=False):
                             pass
                         else:
                             index_count += 1
-                            # print('At %r is text: %s' % ((x, y), fullstring))
-                            crop_page = extract_image(x, y, index_page, file_pdf_reader)
+                            crop_page = file_pdf_reader.pages[index_page - 1]
+                            crop_page.mediabox.left = x - 38
+                            crop_page.mediabox.right = x + 62
+                            crop_page.mediabox.top = y + 118.57
+                            crop_page.mediabox.bottom = y - 53.43
                             file_pdf_writer.add_page(crop_page)
 
     if len(lines_not_found) == 0:
@@ -144,29 +150,12 @@ def find_codes(list_input_files, search_codes, target_folder, validate=False):
         os.makedirs(target_folder)
 
     if len(file_pdf_writer.pages) > 0:
-        with open(target_folder + os.sep + print_name_file(name_file, search_codes), "wb") as fp:
+        replace_values = {"/": "%", "[": "", "]": "", "\'": "", "\"": ""}
+        name = str(list(set(name_file))) + ' (' + str(len(search_codes)) + ' pcs).pdf'
+        for i, j in replace_values.items():
+            name = name.replace(i, j)
+        with open(target_folder + os.sep + name, "wb") as fp:
             file_pdf_writer.write(fp)
-
-
-def print_data_code(substring):
-    i_out = ''
-    code_checker = CodeChecker()
-    data_code = code_checker.get_info(substring, "datamatrix")
-    for i in data_code:
-        i_out += i + ' '
-    return [i_out + '\n', data_code[2]]
-
-
-def print_name_file(name_file, lines):
-    replace_values = {"/": "%", "[": "", "]": "", "\'": "", "\"": ""}
-    name = str(list(set(name_file))) + ' (' + str(len(lines)) + ' pcs).pdf'
-    return multiple_replace(name, replace_values)
-
-
-def multiple_replace(target_str, replace_values):
-    for i, j in replace_values.items():
-        target_str = target_str.replace(i, j)
-    return target_str
 
 
 '''
@@ -232,6 +221,6 @@ def get_files(input_folder, file_type):
 
 
 if __name__ == "__main__":
-    check_datamatrix(read_data('datamatrix.txt'))  # datamatrix.txt >>> API
-    find_codes(get_files('input', '*.pdf'), read_data('datamatrix.txt'), 'out')  # search  >>> datamatrix.txt >>> out
-    fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
+    # check_datamatrix(read_data('datamatrix.txt'))  # datamatrix.txt >>> API
+    find_codes(get_files('input', '*.pdf'), read_data('datamatrix.txt'), 'out', True)  # search  >>> datamatrix.txt >>> out
+    # fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
