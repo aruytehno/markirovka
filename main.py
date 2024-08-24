@@ -18,52 +18,44 @@ from urllib.parse import quote_plus
 """
 
 
-class CodeChecker:
-    BASE_URL = "https://mobile.api.crpt.ru/mobile/check"
+def get_info(code, code_type):
+    base_url = "https://mobile.api.crpt.ru/mobile/check"
+    encoded_code = quote_plus(code)
+    url = f"{base_url}?code={encoded_code}&codeType={code_type}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+    except requests.RequestException as e:
+        print(f"Ошибка при запросе: {e}")
+        return ["Ошибка получения данных 🛑"]
 
-    def _get_info(self, code, code_type):
-        encoded_code = quote_plus(code)
-        url = f"{self.BASE_URL}?code={encoded_code}&codeType={code_type}"
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException as e:
-            print(f"Ошибка при запросе: {e}")
-            return None
+    info_msg = [data.get('code', 'Неизвестный код')]
 
-    def get_info(self, code, code_type="datamatrix"):
-        data = self._get_info(code, code_type)
-        if not data:
-            return ["Ошибка получения данных 🛑"]
+    if data.get('codeFounded'):
+        status = data.get('tiresData', {}).get('status', 'Неизвестный статус')
+        status_messages = {
+            'INTRODUCED': 'В обороте ✅',
+            'RETIRED': 'Выбыл из оборота ❌',
+            'EMITTED': 'Эмитирован, выпущен ✔️',
+            'APPLIED': 'Эмитирован, получен 🔗',
+            'WRITTEN_OFF': 'КИ списан 🟥',
+            'DISAGGREGATION': 'Расформирован (только для упаковок) 📦🟥'
+        }
+        info_msg.append(status_messages.get(status, f'Неизвестный статус кода ⚠️ [{status}]'))
+        product_name = data.get('productName', 'Неизвестный продукт')
+        info_msg.append(f'[{product_name}]')
+    else:
+        info_msg.append('Код не найден ❗')
 
-        info_msg = [data.get('code', 'Неизвестный код')]
-
-        if data.get('codeFounded'):
-            status = data.get('tiresData', {}).get('status', 'Неизвестный статус')
-            status_messages = {
-                'INTRODUCED': 'В обороте ✅',
-                'RETIRED': 'Выбыл из оборота ❌',
-                'EMITTED': 'Эмитирован, выпущен ✔️',
-                'APPLIED': 'Эмитирован, получен 🔗',
-                'WRITTEN_OFF': 'КИ списан 🟥',
-                'DISAGGREGATION': 'Расформирован (только для упаковок) 📦🟥'
-            }
-            info_msg.append(status_messages.get(status, f'Неизвестный статус кода ⚠️ [{status}]'))
-            product_name = data.get('productName', 'Неизвестный продукт')
-            info_msg.append(f'[{product_name}]')
-        else:
-            info_msg.append('Код не найден ❗')
-
-        return info_msg
+    return info_msg
 
 
 def check_datamatrix(data_codes):
-    checker = CodeChecker()
 
     # Проверка каждого кода и вывод результатов
     for index, code in enumerate(data_codes, start=1):
-        info = checker.get_info(code)
+        info = get_info(code, code_type="datamatrix")
         print(f"{index}/{len(data_codes)} {' '.join(info)}")
 
 
@@ -109,8 +101,7 @@ def find_codes(list_input_files, search_codes, target_folder, validate=False):
                             print('\nНайдено совпадение: ' + substring[24:])
                             if validate:
                                 i_out = ''
-                                code_checker = CodeChecker()
-                                data_code = code_checker.get_info(substring, "datamatrix")
+                                data_code = get_info(substring, "datamatrix")
                                 for i in data_code:
                                     i_out += i + ' '
                                 name_file.append(data_code[2])
@@ -214,4 +205,4 @@ def get_files(input_folder, file_type):
 if __name__ == "__main__":
     check_datamatrix(read_data('datamatrix.txt'))  # datamatrix.txt >>> API
     find_codes(get_files('input', '*.pdf'), read_data('datamatrix.txt'), 'out', True)  # search  >>> datamatrix.txt >>> out
-    fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
+    # fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
