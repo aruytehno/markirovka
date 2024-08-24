@@ -72,15 +72,6 @@ def check_datamatrix(data_codes):
 '''
 
 
-def extract_image(x, y, index_page, file_pdf_reader):
-    crop_page = file_pdf_reader.pages[index_page - 1]
-    crop_page.mediabox.left = x - 38
-    crop_page.mediabox.right = x + 62
-    crop_page.mediabox.top = y + 118.57
-    crop_page.mediabox.bottom = y - 53.43
-    return crop_page
-
-
 def find_codes(list_input_files, search_codes, target_folder, validate=False):
     name_file = []
     lines_not_found = search_codes.copy()
