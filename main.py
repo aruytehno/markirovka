@@ -199,6 +199,9 @@ def get_files(input_folder, file_type):
 
 
 if __name__ == "__main__":
-    check_datamatrix(read_data('datamatrix.txt'))  # datamatrix.txt >>> API
-    find_codes(get_files('input', '*.pdf'), read_data('datamatrix.txt'), 'out', True)  # search  >>> datamatrix.txt >>> out
-    fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
+    # datamatrix.txt >>> API
+    check_datamatrix(read_data('datamatrix.txt'))
+    # search  >>> datamatrix.txt >>> out
+    find_codes(get_files('input', '*.pdf'), read_data('datamatrix.txt'), 'out', True)
+    # input >>> out
+    fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')
