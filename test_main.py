@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from main import read_file
+from main import read_data
 
 
 class TestReadFile(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestReadFile(unittest.TestCase):
             f.write('This is a test file.\n')
 
         # Тестируем метод read_file
-        lines = read_file(file_path)
+        lines = read_data(file_path)
         self.assertIsNotNone(lines)
         self.assertEqual(len(lines), 2)
         self.assertEqual(lines[0].strip(), 'Hello, world!')
@@ -30,7 +30,7 @@ class TestReadFile(unittest.TestCase):
 
         # Тестируем метод read_file
         with self.assertRaises(SystemExit):
-            read_file(file_path)
+            read_data(file_path)
 
         # Удаляем файл
         os.remove(file_path)
@@ -39,7 +39,7 @@ class TestReadFile(unittest.TestCase):
         # Тестируем метод read_file с несуществующим файлом
         file_path = 'non_existent_file.txt'
         with self.assertRaises(SystemExit):
-            read_file(file_path)
+            read_data(file_path)
 
         # Проверяем, что файл был создан
         self.assertTrue(os.path.exists(file_path))
