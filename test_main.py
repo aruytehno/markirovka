@@ -14,7 +14,7 @@ class TestReadFile(unittest.TestCase):
 
         # Тестируем метод read_file
         lines = read_data(file_path)
-        self.assertIsNotNone(lines)
+        self.assertIsInstance(lines, list)
         self.assertEqual(len(lines), 2)
         self.assertEqual(lines[0].strip(), 'Hello, world!')
         self.assertEqual(lines[1].strip(), 'This is a test file.')
@@ -29,8 +29,9 @@ class TestReadFile(unittest.TestCase):
             pass
 
         # Тестируем метод read_file
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             read_data(file_path)
+        self.assertEqual(cm.exception.code, None)
 
         # Удаляем файл
         os.remove(file_path)
@@ -38,8 +39,9 @@ class TestReadFile(unittest.TestCase):
     def test_file_not_exists(self):
         # Тестируем метод read_file с несуществующим файлом
         file_path = 'non_existent_file.txt'
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             read_data(file_path)
+        self.assertEqual(cm.exception.code, None)
 
         # Проверяем, что файл был создан
         self.assertTrue(os.path.exists(file_path))
