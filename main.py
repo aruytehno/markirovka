@@ -18,46 +18,41 @@ from urllib.parse import quote_plus
 """
 
 
-def get_info(code, code_type):
-    base_url = "https://mobile.api.crpt.ru/mobile/check"
-    encoded_code = quote_plus(code)
-    url = f"{base_url}?code={encoded_code}&codeType={code_type}"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-    except requests.RequestException as e:
-        print(f"Ошибка при запросе: {e}")
-        return ["Ошибка получения данных 🛑"]
-
-    info_msg = [data.get('code', 'Неизвестный код')]
-
-    if data.get('codeFounded'):
-        status = data.get('tiresData', {}).get('status', 'Неизвестный статус')
-        status_messages = {
-            'INTRODUCED': 'В обороте ✅',
-            'RETIRED': 'Выбыл из оборота ❌',
-            'EMITTED': 'Эмитирован, выпущен ✔️',
-            'APPLIED': 'Эмитирован, получен 🔗',
-            'WRITTEN_OFF': 'КИ списан 🟥',
-            'DISAGGREGATION': 'Расформирован (только для упаковок) 📦🟥'
-        }
-        info_msg.append(status_messages.get(status, f'Неизвестный статус кода ⚠️ [{status}]'))
-        product_name = data.get('productName', 'Неизвестный продукт')
-        info_msg.append(f'[{product_name}]')
-    else:
-        info_msg.append('Код не найден ❗')
-
-    return info_msg
-
-
-def check_datamatrix(data_codes):
-
+def check_datamatrix(data_codes, code_type="datamatrix"):
     # Проверка каждого кода и вывод результатов
     for index, code in enumerate(data_codes, start=1):
-        info = get_info(code, code_type="datamatrix")
-        print(f"{index}/{len(data_codes)} {' '.join(info)}")
+        base_url = "https://mobile.api.crpt.ru/mobile/check"
+        encoded_code = quote_plus(code)
+        url = f"{base_url}?code={encoded_code}&codeType={code_type}"
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
+        except requests.RequestException as e:
+            print(f"Ошибка при запросе: {e}")
+            return ["Ошибка получения данных 🛑"]
 
+        info_msg = [data.get('code', 'Неизвестный код')]
+
+        if data.get('codeFounded'):
+            status = data.get('tiresData', {}).get('status', 'Неизвестный статус')
+            status_messages = {
+                'INTRODUCED': 'В обороте ✅',
+                'RETIRED': 'Выбыл из оборота ❌',
+                'EMITTED': 'Эмитирован, выпущен ✔️',
+                'APPLIED': 'Эмитирован, получен 🔗',
+                'WRITTEN_OFF': 'КИ списан 🟥',
+                'DISAGGREGATION': 'Расформирован (только для упаковок) 📦🟥'
+            }
+            info_msg.append(status_messages.get(status, f'Неизвестный статус кода ⚠️ [{status}]'))
+            product_name = data.get('productName', 'Неизвестный продукт')
+            info_msg.append(f'[{product_name}]')
+        else:
+            info_msg.append('Код не найден ❗')
+        if len(data_codes) > 1:
+            print(f"{index}/{len(data_codes)} {' '.join(info_msg)}")
+        else:
+            return info_msg
 
 '''
 Скрипт для поиска кодов в PDF-документе с общим массивом кодов после выгрузки, сохраняя найденные в новый PDF-файл.
@@ -101,7 +96,8 @@ def find_codes(list_input_files, search_codes, target_folder, validate=False):
                             print('\nНайдено совпадение: ' + substring[24:])
                             if validate:
                                 i_out = ''
-                                data_code = get_info(substring, "datamatrix")
+                                substring_list = [substring]
+                                data_code = check_datamatrix(substring_list)
                                 for i in data_code:
                                     i_out += i + ' '
                                 name_file.append(data_code[2])
@@ -205,4 +201,4 @@ def get_files(input_folder, file_type):
 if __name__ == "__main__":
     check_datamatrix(read_data('datamatrix.txt'))  # datamatrix.txt >>> API
     find_codes(get_files('input', '*.pdf'), read_data('datamatrix.txt'), 'out', True)  # search  >>> datamatrix.txt >>> out
-    # fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
+    fix_lines(get_files('input', '*.pdf'), 'out', 'watermark.pdf')  # input >>> out
